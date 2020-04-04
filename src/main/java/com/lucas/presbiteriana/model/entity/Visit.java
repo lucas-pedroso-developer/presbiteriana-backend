@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
@@ -43,7 +44,8 @@ public class Visit implements Serializable {
 	private Long idLeader;		
 	
 	@Column(name = "visitdate")	
-	@Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+	@JsonFormat(pattern="dd/MM/yyyy")
+	@Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)	
 	private LocalDate visitDate;	
 	
 	@Column(name = "presbytername")	

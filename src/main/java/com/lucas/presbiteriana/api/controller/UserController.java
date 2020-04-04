@@ -1,6 +1,7 @@
 package com.lucas.presbiteriana.api.controller;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lucas.presbiteriana.api.dto.UserDto;
 import com.lucas.presbiteriana.exception.BusinessRuleException;
 import com.lucas.presbiteriana.model.entity.User;
@@ -47,7 +50,7 @@ public class UserController {
 				.email(dto.getEmail())
 				.address(dto.getAddress())
 				.age(dto.getAge())
-				.birthday(dto.getBirthdayConverted())
+				.birthday(dto.getBirthday())
 				.isPresbyter(dto.getIsPresbyter())
 				.isLeader(dto.getIsLeader())
 				.idLeader(dto.getIdLeader())
@@ -78,7 +81,7 @@ public class UserController {
 			try {
 				User user = convert(dto);
 				user.setId(entity.getId());				
-				service.updateUser(user);
+				service.updateUser(user);				
 				return ResponseEntity.ok(user);
 			} catch (BusinessRuleException e) {
 				return ResponseEntity.badRequest().body(e.getMessage());
@@ -102,7 +105,7 @@ public class UserController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "address", required = false) String address,
 			@RequestParam(value = "age", required = false) Integer age,			
-			@RequestParam(value = "birthday", required = false) String birthday,								   
+			@RequestParam(value = "birthday", required = false) @DateTimeFormat(pattern="dd/MM/yyyy")  LocalDate birthday,								   
 			@RequestParam(value = "isPresbyter", required = false) Boolean isPresbyter,
 			@RequestParam(value = "isLeader", required = false) Boolean isLeader,
 			@RequestParam(value = "idLeader", required = false) Long idLeader,
@@ -115,13 +118,8 @@ public class UserController {
 		userFilter.setName(name); 
 		userFilter.setEmail(email);
 		userFilter.setAddress(address);
-		userFilter.setAge(age);
-						
-		if(birthday != null) {
-			LocalDate userLocalDate = LocalDate.parse(birthday);
-			userFilter.setBirthday(userLocalDate);
-		} 			
-		
+		userFilter.setAge(age);				
+		userFilter.setBirthday(birthday);
 		userFilter.setIsPresbyter(isPresbyter);
 		userFilter.setIsLeader(isLeader);
 		userFilter.setIdLeader(idLeader);
@@ -129,7 +127,7 @@ public class UserController {
 		userFilter.setPhone(phone);
 		userFilter.setCellphone(cellphone);
 						
-		List<User> users = service.searchUser(userFilter);
+		List<User> users = service.searchUser(userFilter);		
 		return ResponseEntity.ok(users);
 	}
 	
@@ -172,7 +170,7 @@ public class UserController {
 		user.setEmail(dto.getEmail());
 		user.setAddress(dto.getAddress());
 		user.setAge(dto.getAge());
-		user.setBirthday(dto.getBirthdayConverted());
+		user.setBirthday(dto.getBirthday());
 		user.setIsPresbyter(dto.getIsPresbyter());
 		user.setIsLeader(dto.getIsLeader());
 		user.setIdLeader(dto.getIdLeader());
@@ -198,6 +196,13 @@ public class UserController {
 				.phone(user.getPhone())
 				.cellphone(user.getCellphone())
 				.build();		
+	}
+	
+	private LocalDate convertToLocalDate(String date) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
+		String dateStr = localDate.format(dateTimeFormatter);
+		return LocalDate.parse(dateStr);
 	}
 	
 }

@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +53,7 @@ public class VisitController {
 				.builder()
 				.idPresbyter(dto.getIdPresbyter())
 				.idLeader(dto.getIdLeader())
-				.visitDate(dto.getVisitDateConverted())
+				.visitDate(dto.getVisitDate())
 				.presbyterName(dto.getPresbyterName())
 				.leaderName(dto.getLeaderName())
 				.build();
@@ -93,7 +94,7 @@ public class VisitController {
 			@RequestParam(value = "id", required = false) Long visitId,
 			@RequestParam(value = "idleader", required = false) Long idLeader,
 			@RequestParam(value = "idPresbyter", required = false) Long idPresbyter,
-			@RequestParam(value = "visitDate", required = false) String visitDate,
+			@RequestParam(value = "visitDate", required = false) @DateTimeFormat(pattern="dd/MM/yyyy")  LocalDate visitDate,			
 			@RequestParam(value = "leaderName", required = false) Long leaderName,
 			@RequestParam(value = "presbyterName", required = false) Long presbyterName
 			) {
@@ -101,10 +102,11 @@ public class VisitController {
 		Visit visitFilter = new Visit();
 		visitFilter.setIdPresbyter(idPresbyter); 
 		visitFilter.setIdLeader(idLeader);
-		if(visitDate != null) {
+		visitFilter.setVisitDate(visitDate);
+		/*if(visitDate != null) {
 			LocalDate visitLocalDate = LocalDate.parse(visitDate);
 			visitFilter.setVisitDate(visitLocalDate);
-		} 			
+		}*/			
 		List<Visit> visits = service.searchVisit(visitFilter);
 		return ResponseEntity.ok(visits);
 	}
@@ -114,7 +116,7 @@ public class VisitController {
 		visit.setId(dto.getId());
 		visit.setIdPresbyter(dto.getIdPresbyter());
 		visit.setIdLeader(dto.getIdLeader());
-		visit.setVisitDate(dto.getVisitDateConverted());
+		visit.setVisitDate(dto.getVisitDate());
 		visit.setLeaderName(dto.getLeaderName());
 		visit.setPresbyterName(dto.getPresbyterName());
 				
